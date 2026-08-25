@@ -1,0 +1,20 @@
+{
+  "n_train_pages": 3240,
+  "baseline_vs_model_agreement": 0.3077160493827161,
+  "high_volatility_pages_n": 324,
+  "model_labels_monitor_pct_of_high_volatility": 0.0,
+  "baseline_labels_monitor_pct_of_high_volatility": 0.6450617283950617,
+  "model_archetype_counts": {
+    "protect": 1415,
+    "rewrite": 847,
+    "prune": 580,
+    "merge": 398
+  },
+  "baseline_archetype_counts": {
+    "monitor": 1620,
+    "protect": 810,
+    "prune": 313,
+    "rewrite": 285,
+    "improve": 212
+  }
+}

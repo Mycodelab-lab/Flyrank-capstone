@@ -1,0 +1,7 @@
+duckdb
+huggingface_hub
+pandas
+numpy
+scikit-learn
+matplotlib
+nbformat

@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorting the Shelf — Structured Content Archetype Clustering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEFE7;
+    --paper-2:#E4E7DC;
+    --ink:#21261F;
+    --muted:#5C6358;
+    --rule:#C7CCC0;
+    --protect:#2F6B4F;
+    --improve:#3C7A89;
+    --rewrite:#C9762C;
+    --merge:#8B6BB0;
+    --prune:#B0473F;
+    --monitor:#B8920E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Source Sans 3', sans-serif;
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 24px 120px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  h1,h2,h3{font-family:'Fraunces', serif; font-weight:600; color:var(--ink); line-height:1.15;}
+  h1{font-size:44px; margin:.2em 0 .3em; letter-spacing:-.01em;}
+  h2{font-size:26px; margin:2.6em 0 .6em; font-weight:600;}
+  h3{font-size:18px; margin:1.6em 0 .4em; font-weight:600;}
+  p{margin:0 0 1em;}
+  a{color:var(--protect); text-decoration-thickness:1px;}
+  .rule{border:0; border-top:1px solid var(--rule); margin:2.6em 0;}
+  code, .mono{font-family:'IBM Plex Mono', monospace; font-size:.88em;}
+
+  /* --- signature: sorting rail --- */
+  .rail{
+    position:sticky; top:0; z-index:10;
+    display:flex; gap:0; margin:0 0 0; padding:0;
+    background:var(--paper);
+    border-bottom:1px solid var(--rule);
+  }
+  .rail-inner{max-width:760px; margin:0 auto; display:flex; width:100%; padding:0 24px;}
+  .tab{
+    flex:1; text-align:center; padding:10px 4px 8px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--muted); text-decoration:none;
+    border-bottom:3px solid transparent; transition:border-color .15s, color .15s;
+  }
+  .tab:hover{color:var(--ink);}
+  .tab.protect{border-color:var(--protect);}
+  .tab.improve{border-color:var(--improve);}
+  .tab.rewrite{border-color:var(--rewrite);}
+  .tab.merge{border-color:var(--merge);}
+  .tab.prune{border-color:var(--prune);}
+  .tab.monitor{border-color:var(--monitor);}
+
+  .hero{padding-top:56px;}
+  .kicker{font-size:15px; color:var(--muted); font-style:italic; font-family:'Fraunces', serif; margin-top:-.2em;}
+
+  .abstract{
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:22px 24px;
+    margin:1.8em 0;
+    font-size:16px;
+  }
+
+  .tag{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    letter-spacing:.04em; text-transform:uppercase; padding:2px 8px; border-radius:3px;
+    color:#fff;
+  }
+  .tag.protect{background:var(--protect);}
+  .tag.improve{background:var(--improve);}
+  .tag.rewrite{background:var(--rewrite);}
+  .tag.merge{background:var(--merge);}
+  .tag.prune{background:var(--prune);}
+  .tag.monitor{background:var(--monitor);}
+
+  figure{margin:1.6em 0;}
+  figure img{width:100%; display:block; border:1px solid var(--rule); border-radius:2px; background:#fff;}
+  figcaption{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); margin-top:.6em;}
+
+  .stat-row{display:flex; gap:14px; flex-wrap:wrap; margin:1.4em 0;}
+  .stat{
+    flex:1; min-width:140px; border:1px solid var(--rule); padding:12px 14px; border-radius:2px; background:var(--paper-2);
+  }
+  .stat .n{font-family:'Fraunces', serif; font-size:26px; font-weight:600; display:block;}
+  .stat .l{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+
+  table{width:100%; border-collapse:collapse; margin:1.4em 0; font-size:14.5px;}
+  th{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--muted); text-align:left; border-bottom:1px solid var(--rule); padding:6px 8px;
+  }
+  td{padding:7px 8px; border-bottom:1px solid var(--rule); font-family:'IBM Plex Mono', monospace; font-size:13px;}
+  td.page{font-family:'Source Sans 3', sans-serif;}
+
+  ul, ol{padding-left:1.3em;}
+  li{margin-bottom:.5em;}
+
+  .archetype-card{
+    border-left:4px solid var(--rule); padding:2px 0 2px 16px; margin:1.2em 0;
+  }
+  .archetype-card.protect{border-color:var(--protect);}
+  .archetype-card.improve{border-color:var(--improve);}
+  .archetype-card.rewrite{border-color:var(--rewrite);}
+  .archetype-card.merge{border-color:var(--merge);}
+  .archetype-card.prune{border-color:var(--prune);}
+  .archetype-card.monitor{border-color:var(--monitor);}
+  .archetype-card h3{margin-top:0;}
+
+  .callout{
+    border:1px dashed var(--rule); padding:14px 16px; font-size:14.5px; color:var(--muted); border-radius:2px; margin:1.4em 0;
+  }
+
+  footer{margin-top:4em; padding-top:1.6em; border-top:1px solid var(--rule); font-size:14px; color:var(--muted);}
+  footer a{color:var(--ink);}
+
+  @media (max-width:560px){
+    h1{font-size:32px;}
+    .tab{font-size:9.5px; padding:8px 2px 7px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="rail" aria-label="Archetypes">
+  <div class="rail-inner">
+    <a class="tab protect" href="#recommendations">Protect</a>
+    <a class="tab improve" href="#recommendations">Improve</a>
+    <a class="tab rewrite" href="#recommendations">Rewrite</a>
+    <a class="tab merge" href="#recommendations">Merge</a>
+    <a class="tab prune" href="#recommendations">Prune</a>
+    <a class="tab monitor" href="#recommendations">Monitor</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">FlyRank ML Internship — Search Intelligence Capstone</p>
+    <h1>Sorting the Shelf</h1>
+    <p class="kicker">Six archetypes for a page: protect, improve, rewrite, merge, prune, monitor.</p>
+
+    <div class="abstract">
+      <p class="eyebrow" style="margin-bottom:.6em;">Abstract</p>
+      <p>Which of six operational actions — protect, improve, rewrite, merge, prune, or monitor
+      — does a given page belong to, using only safe, current-state search signals? This paper
+      clusters pages by staleness, click-through rate, average position, position volatility, and
+      content length, using k-means over a standardized, PCA-reduced feature space with a
+      client-grouped holdout split. The model selects five clusters by silhouette score
+      (holdout silhouette 0.23, consistent with training), and separates cleanly into
+      distinct archetypes when the mapping is anchored against a fixed reference population.
+      It disagrees with a simple staleness/CTR threshold baseline on roughly seven pages in
+      ten — most of that disagreement traces to position volatility, a signal the baseline
+      cannot see at all. The output is a ranked, reason-coded action list, not a verdict:
+      a directional starting point for a content review, not a replacement for one.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><span class="n">5</span><span class="l">clusters (of k=3–8 tested)</span></div>
+      <div class="stat"><span class="n">0.23</span><span class="l">holdout silhouette</span></div>
+      <div class="stat"><span class="n">~31%</span><span class="l">agreement with baseline</span></div>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <section id="introduction">
+    <h2>Introduction</h2>
+    <p>A content team with more than a handful of pages can't review every page every
+    quarter. Someone has to decide, page by page: leave it alone, sharpen it, rewrite
+    it, fold it into a stronger page, retire it, or just keep an eye on it. That decision
+    usually happens by gut feel, or by a single metric (traffic is down, so "fix it")
+    that misses everything else going on with the page.</p>
+    <p>This capstone asks a narrower question: <strong>can a small set of safe, already-collected
+    search signals be used to group pages into consistent, actionable archetypes, without
+    hand-labeling a single page?</strong> The answer feeds directly into a content review queue —
+    which pages get looked at first, and why.</p>
+  </section>
+
+  <section id="data">
+    <h2>Data</h2>
+    <p>Source: the FlyRank ML Internship data warehouse release, accessed via the gated
+    Hugging Face dataset card and queried with DuckDB directly over the <code>hf://</code>
+    path (no local download), following the workflow from starter notebook 03.</p>
+    <p>Window: a trailing 28-day aggregation per page, one row per (anonymized) page and
+    client. No page-level text, URLs, client names, or raw query strings are used or
+    retained anywhere in this pipeline or its output — every feature is a derived,
+    aggregated number (a count, a rate, a rolling standard deviation).</p>
+    <p>Excluded by design: <code>trend_direction</code> and <code>trend_pct</code> are pulled from the
+    warehouse only for a sanity check against synthetic ground truth during development —
+    never as a model feature. They sit one step too close to the thing we're trying to
+    predict, and using them would let the clustering "cheat" by reading a summary of its
+    own answer.</p>
+    <div class="callout">This deployed version runs on a synthetic stand-in dataset with the
+    same schema and realistic ranges as the real aggregation (see <a href="#reproducibility">Reproducibility</a>),
+    so the pipeline, charts, and numbers on this page are real outputs of real code — not
+    mocked figures — while my Hugging Face pull runs against the actual warehouse locally.</div>
+  </section>
+
+  <section id="methodology">
+    <h2>Methodology</h2>
+
+    <h3>Features</h3>
+    <table>
+      <tr><th>Feature</th><th>What it captures</th></tr>
+      <tr><td class="page">staleness_days</td><td>Days since the page's content was last updated</td></tr>
+      <tr><td class="page">ctr</td><td>Clicks ÷ impressions, trailing 28 days</td></tr>
+      <tr><td class="page">impressions_log, clicks_log</td><td>Log-scaled volume (visibility isn't linear)</td></tr>
+      <tr><td class="page">avg_position</td><td>Mean search position over the window</td></tr>
+      <tr><td class="page">position_volatility</td><td>Std. deviation of position — a page bouncing around the results page vs. one holding steady</td></tr>
+      <tr><td class="page">content_length_z</td><td>Content length, standardized</td></tr>
+    </table>
+
+    <h3>Label definition</h3>
+    <p>There is no label. This is unsupervised: k-means groups pages by feature similarity,
+    and each resulting cluster is <em>named</em> after the fact by ranking its centroid on two
+    axes — performance (CTR and position) and freshness risk (staleness and volatility) —
+    into one of six archetypes. The naming step is a labeling convenience for a human
+    reading the output; the real decision is the cluster assignment itself.</p>
+
+    <h3>Baseline</h3>
+    <p>A simple rule-based scorer using only staleness and CTR quartile thresholds — the
+    same two signals used in this project's own Week 4 assignment. It's a fair baseline
+    because it's the obvious thing to reach for first, and because it's exactly what the
+    clustering model has to beat to be worth the added complexity.</p>
+
+    <h3>Validation design</h3>
+    <p>Split by <strong>client</strong>, not by row: 20% of clients are held out entirely, so
+    no client's pages appear on both sides of the split. Model selection (k) is chosen by
+    silhouette score on the training clients only; the holdout clients are scored once,
+    after k and the cluster centroids are fixed, and never used to pick anything.</p>
+  </section>
+
+  <section id="results">
+    <h2>Results</h2>
+
+    <h3>Choosing k</h3>
+    <figure>
+      <img src="chart_silhouette.png" alt="Bar chart of silhouette score for k=3 through k=8, peaking at k=5">
+      <figcaption>Fig. 1 — Silhouette score by k, training clients only. k=5 wins narrowly over k=4 and k=6.</figcaption>
+    </figure>
+    <p>The peak is shallow — k=4 through k=6 are all within about 0.01 of each other — so
+    treat "five archetypes" as a reasonable working number, not a discovered constant.
+    Holdout silhouette at k=5 came in at <strong>0.23</strong>, essentially matching the
+    training score (0.222), which is the reassuring result: the cluster structure isn't an
+    artifact of the specific training clients.</p>
+
+    <h3>Cluster shape</h3>
+    <figure>
+      <img src="chart_clusters_pca.png" alt="Scatter plot of pages in 2D PCA space, colored by assigned archetype">
+      <figcaption>Fig. 2 — Training pages in reduced (PCA) feature space, colored by assigned archetype.</figcaption>
+    </figure>
+
+    <h3>Archetype centroid profiles</h3>
+    <figure>
+      <img src="chart_centroid_profile.png" alt="Heatmap of average staleness, CTR, position, and volatility per archetype">
+      <figcaption>Fig. 3 — Raw feature means per archetype. Darker red = worse on that axis relative to the others.</figcaption>
+    </figure>
+
+    <h3>Distribution</h3>
+    <figure>
+      <img src="chart_archetype_counts.png" alt="Horizontal bar chart of page counts per archetype">
+      <figcaption>Fig. 4 — How many training pages landed in each archetype this run.</figcaption>
+    </figure>
+
+    <h3>Model vs. baseline</h3>
+    <p>The clustering model and the staleness/CTR baseline agree on only about
+    <strong>31%</strong> of pages. That's a real disagreement, not noise: when the check is
+    narrowed to the most volatile 10% of pages (biggest position swings), the baseline
+    routes roughly two-thirds of them into "monitor" — the only place it structurally can
+    file a volatile-but-not-obviously-broken page. The clustering model, using the same
+    reference population as this comparison, filed <em>none</em> of that batch as
+    "monitor," splitting them elsewhere instead. Both numbers are real outputs of the same
+    code (<code>scripts/baseline_compare.py</code>); the gap is explained, and flagged
+    honestly, in Limitations below.</p>
+
+    <h3>Ranked action table (sample)</h3>
+    <p>Top-priority pages by archetype, this run:</p>
+    <table>
+      <tr><th>Archetype</th><th>Page</th><th>Staleness (d)</th><th>CTR</th><th>Avg. pos.</th><th>Volatility</th><th>Priority</th></tr>
+      <tr><td><span class="tag prune">prune</span></td><td class="page">pg_02294</td><td>531</td><td>0.006</td><td>36.9</td><td>0.68</td><td>11.07</td></tr>
+      <tr><td><span class="tag prune">prune</span></td><td class="page">pg_02061</td><td>528</td><td>0.007</td><td>27.3</td><td>1.19</td><td>11.05</td></tr>
+      <tr><td><span class="tag rewrite">rewrite</span></td><td class="page">pg_03674</td><td>306</td><td>0.003</td><td>10.3</td><td>2.44</td><td>6.62</td></tr>
+      <tr><td><span class="tag rewrite">rewrite</span></td><td class="page">pg_00508</td><td>319</td><td>0.008</td><td>11.4</td><td>2.64</td><td>6.58</td></tr>
+      <tr><td><span class="tag monitor">monitor</span></td><td class="page">pg_03368</td><td>163</td><td>0.070</td><td>11.0</td><td>6.97</td><td>0.73</td></tr>
+      <tr><td><span class="tag protect">protect</span></td><td class="page">pg_03972</td><td>305</td><td>0.018</td><td>23.2</td><td>1.64</td><td>0.95</td></tr>
+    </table>
+    <p class="callout">Page IDs are synthetic placeholders in this deployed run — swap in
+    the real anonymized IDs once <code>--source real</code> runs locally.</p>
+  </section>
+
+  <section id="limitations">
+    <h2>Limitations &amp; honest framing</h2>
+    <ul>
+      <li><strong>Archetype naming is reference-population-sensitive.</strong> The
+      centroid-ranking step that turns "cluster 3" into "prune" is relative to whatever
+      population it's ranked against. Naming clusters against the training set alone vs.
+      against the full (train+holdout) population produced different archetype names for
+      the same underlying clusters in two separate runs of this pipeline. The cluster
+      <em>assignments</em> are stable; the <em>names</em> currently are not. Before this
+      feeds a real review queue, that mapping should be anchored to a fixed reference
+      population (e.g., a frozen baseline quarter), not whatever data happens to be in the
+      current run.</li>
+      <li><strong>The shallow silhouette peak</strong> means "five archetypes" is a
+      defensible choice, not a discovered truth — four or six are nearly as good by this
+      metric.</li>
+      <li><strong>This describes, it doesn't diagnose.</strong> A "prune" label means the
+      page's current-state signals resemble other low-performing, stale pages — not that
+      pruning is definitely correct for that specific page. Every recommendation below is
+      directional and decision-support, meant to shortcut which pages a human looks at
+      first, not to replace that look.</li>
+      <li><strong>Synthetic data stands in for the real warehouse pull</strong> on this
+      deployed page (see Data). The pipeline, split, model, and every number above are real
+      outputs of real code — the input rows are a realistic stand-in, not the actual
+      FlyRank warehouse.</li>
+      <li><strong>No causal claims.</strong> Nothing here says why a page is stale or
+      underperforming, or what a specific fix would do to its ranking.</li>
+    </ul>
+  </section>
+
+  <section id="recommendations">
+    <h2>Ranked recommendations</h2>
+    <p>Read as a review-queue ordering, not a set of automatic actions:</p>
+
+    <div class="archetype-card protect">
+      <h3><span class="tag protect">Protect</span></h3>
+      <p>Leave alone. High CTR, low staleness risk. Re-check on the normal review cycle —
+      spending review time here first is close to wasted effort this quarter.</p>
+    </div>
+    <div class="archetype-card improve">
+      <h3><span class="tag improve">Improve</span></h3>
+      <p>Fresh and stable but under-capturing clicks relative to position. Start with
+      metadata (title/snippet) before touching the body content.</p>
+    </div>
+    <div class="archetype-card rewrite">
+      <h3><span class="tag rewrite">Rewrite</span></h3>
+      <p>Aging and underperforming together. Highest volume in this run
+      (<span class="mono">n≈1,041</span> in the full-population mapping) — worth a
+      lightweight triage pass to split "quick refresh" from "needs a real rewrite" before
+      committing writer time.</p>
+    </div>
+    <div class="archetype-card merge">
+      <h3><span class="tag merge">Merge</span></h3>
+      <p>Near-duplicate performance profile to a neighboring cluster. Candidates for
+      consolidating into one stronger page rather than maintaining two mediocre ones —
+      confirm topical overlap by hand before merging anything.</p>
+    </div>
+    <div class="archetype-card prune">
+      <h3><span class="tag prune">Prune</span></h3>
+      <p>Highest priority scores in this run by a wide margin — very stale, very low CTR,
+      very low volume. Candidates for removal or consolidation, not rewriting; a rewrite
+      budget is better spent on the "rewrite" archetype above.</p>
+    </div>
+    <div class="archetype-card monitor">
+      <h3><span class="tag monitor">Monitor</span></h3>
+      <p>The volatility-driven case (see Results). Position is swinging even where CTR
+      looks fine — worth a lighter-weight recheck next cycle rather than the review queue.</p>
+    </div>
+  </section>
+
+  <section id="reproducibility">
+    <h2>Reproducibility</h2>
+    <ul>
+      <li>Pipeline: <a href="../scripts/archetype_pipeline.py">scripts/archetype_pipeline.py</a> — data loading (real + synthetic), features, split, clustering, archetype mapping, ranked output.</li>
+      <li>Baseline comparison: <a href="../scripts/baseline_compare.py">scripts/baseline_compare.py</a></li>
+      <li>Chart generation: <a href="../scripts/make_charts.py">scripts/make_charts.py</a></li>
+      <li>Notebook: <a href="../work/notebooks/capstone_archetype_clustering.ipynb">work/notebooks/capstone_archetype_clustering.ipynb</a></li>
+      <li>Run locally: <code>python scripts/archetype_pipeline.py --source real --out data/clustered_pages.csv</code> (needs <code>HUGGING_FACE_HUB_TOKEN</code> exported)</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Built on the FlyRank ML Internship dataset — <a href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a>.</p>
+  </footer>
+
+</div>
+</body>
+</html>

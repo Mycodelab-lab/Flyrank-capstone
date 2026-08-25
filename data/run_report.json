@@ -1,0 +1,30 @@
+{
+  "source": "synthetic",
+  "n_pages": 4000,
+  "n_clients": 60,
+  "best_k": 5,
+  "silhouette_by_k": {
+    "3": 0.20113011680954127,
+    "4": 0.21541112346877367,
+    "5": 0.22198472498201025,
+    "6": 0.20892309957314284,
+    "7": 0.2050036680106939,
+    "8": 0.1934870962520927
+  },
+  "train_silhouette": 0.22198472498201025,
+  "holdout_silhouette": 0.2315265375879524,
+  "cluster_to_archetype": {
+    "0": "protect",
+    "1": "rewrite",
+    "2": "prune",
+    "3": "protect",
+    "4": "monitor"
+  },
+  "archetype_counts": {
+    "protect": 1751,
+    "rewrite": 1041,
+    "prune": 713,
+    "monitor": 495
+  },
+  "synthetic_sanity_check_agreement": 0.51425
+}
